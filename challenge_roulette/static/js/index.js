@@ -12,13 +12,18 @@ class Functionality {
         this.apexChallengeField = document.querySelector('#Apex-challenge-field')
         this.challengeName = document.querySelector('#challenge-name')
         this.challengeDescription = document.querySelector('#challenge-description')
+        this.challengeContainer = document.querySelector('#challenge-container')
         this.currentGame
         this.smiteChallenges
         this.apexChallenges
     }
 
     setup() {
-        this.challengeSubmit.addEventListener('submit', this.submitChallenge.bind(this))
+        let thisVar = this
+        this.challengeSubmit.addEventListener('click', function(event) {
+            event.preventDefault()
+            thisVar.challengeValidation(thisVar)
+        })
         this.challengeMeButton.addEventListener('click', this.randomChallenge.bind(this))
         this.gameSelector.addEventListener('change', this.selectGame.bind(this))
         this.getChallenges()
@@ -47,20 +52,60 @@ class Functionality {
         this.apexChallengeField.classList.add('display-none')
     }
 
-    submitChallenge() {
-        console.log('submit challenge')
+    challengeValidation(thisVar) {
+        if (thisVar.currentGame !== undefined) {
+            thisVar.gameSelector.classList.remove('validation-failed')
+            if (thisVar.nameInput.value.length >= 3 ) {
+                thisVar.nameInput.classList.remove('validation-failed')
+                let person = thisVar.personInput.value.toLowerCase()
+                if (person === 'dan' || person === 'tom' || person === 'seth' || person === 'jason') {
+                    thisVar.personInput.classList.remove('validation-failed')
+                    thisVar.submitChallenge(thisVar)
+                }
+                else {
+                    thisVar.personInput.classList.add('validation-failed')
+                }
+            }
+            else {
+                thisVar.nameInput.classList.add('validation-failed')
+            }
+        }
+        else {
+            thisVar.gameSelector.classList.add('validation-failed')
+        }
+    }
+
+    submitChallenge(thisVar) {
+        let data = {game: thisVar.currentGame, name: thisVar.nameInput.value, description: thisVar.descriptionInput.value, person: thisVar.personInput.value.toLowerCase()}
+        fetch('createchallenge/', {
+            method: 'POST',
+            headers: { 'Content-type': 'application.json', },
+            body: JSON.stringify(data)
+        })
+            .then((response) => response.json())
+            .then(response => {
+                console.log(response)
+            })
+            .catch((error) => {
+                console.error(error)
+            })
     }
 
     randomChallenge() {
         if (this.currentGame === 'Smite') {
+            this.gameSelector.classList.remove('validation-failed')
             getRandom(this.smiteChallenges)
         }
         else if (this.currentGame === 'Apex') {
+            this.gameSelector.classList.remove('validation-failed')
+            this.challengeContainer.classList.remove('visibility-hidden')
             getRandom(this.apexChallenges, this.challengeName, this.challengeDescription)
+        }
+        else {
+            this.gameSelector.classList.add('validation-failed')
         }
         function getRandom(game, name, description) {
             let randomChallenge = game['entry' + Math.floor(Math.random() * Object.keys(game).length)]
-            console.log(randomChallenge['name'])
             name.innerText = randomChallenge['name']
             description.innerText = randomChallenge['description']
         }
@@ -81,3 +126,5 @@ class Functionality {
 }
 
 new Functionality().setup()
+
+// need max length for form validation

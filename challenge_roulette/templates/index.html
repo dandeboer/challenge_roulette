@@ -19,7 +19,7 @@
 
     <form>
         <label for='game-selector'>Choose a game:</label>
-        <select name='game' id='game-selector' required>
+        <select name='game' id='game-selector'>
             <option value=''>Choose a game</option>
             {% for game in games %}
             <option value='{{game.name}}'>{{game.name}}</option>
@@ -27,25 +27,28 @@
         </select>
 
         <p>Create a challenge</p>
-        <input type='text' id='name-input' minlength='3' maxlength='50' placeholder="Challenge name" required>
+        <input type='text' id='name-input' minlength='3' maxlength='50' placeholder="Challenge name">
         <input type='text' id='description-input' max_length='200' placeholder="Challenge description (optional)">
         <input type='text' id='person-input' max_length='20' placeholder="Your name">
         <button type='submit' id='challenge-submit'>Submit Challenge</button>
     </form>
 
     <button type='button' class='challenge-me-button' id='challenge-me-button'>Challenge Me!</button>
-    <p class='challenge-name' id='challenge-name'>test name</p>
-    <p class='challenge-description' id='challenge-description'>test description</p>
+
+    <div class='visibility-hidden challenge-field' id='challenge-container'>
+        <p class='challenge-name' id='challenge-name'></p>
+        <p class='challenge-description' id='challenge-description'></p>
+    </div>
 
     {% for game in games %}
     <h3 class='display-none' id='{{game.name}}-challenge-title'>{{game.name}} Challenges</h3>
     <div class='challenge-field display-none' id='{{game.name}}-challenge-field'>
         {% for challenge in challenges %}
         {% if challenge.game.name == game.name %}
-        <div class='challenge-container'>
+        <div>
             <p>{{challenge.name}}</p>
             {% if challenge.description != "" %}
-            <p>{{challenge.description}} peepee</p>
+            <p>{{challenge.description}}</p>
             {% endif %}
         </div>
         {% endif %}

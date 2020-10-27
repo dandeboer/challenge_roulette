@@ -6,4 +6,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home),
     path('getchallenges/', views.get_challenges),
+    path('createchallenge/', views.create_challenge)
 ]
