@@ -13,6 +13,9 @@ class Functionality {
         this.challengeName = document.querySelector('#challenge-name')
         this.challengeDescription = document.querySelector('#challenge-description')
         this.challengeContainer = document.querySelector('#challenge-container')
+        this.hiddenContainer = document.querySelector('#hidden-container')
+        this.defaultOption = document.querySelector('#default-option')
+        this.defaultOptionRemoved = false
         this.currentGame
         this.smiteChallenges
         this.apexChallenges
@@ -20,7 +23,7 @@ class Functionality {
 
     setup() {
         let thisVar = this
-        this.challengeSubmit.addEventListener('click', function(event) {
+        this.challengeSubmit.addEventListener('click', function (event) {
             event.preventDefault()
             thisVar.challengeValidation(thisVar)
         })
@@ -30,19 +33,23 @@ class Functionality {
     }
 
     selectGame() {
+        if (this.defaultOptionRemoved === false) {
+            this.defaultOption.remove()
+            this.hiddenContainer.classList.remove('visibility-hidden')
+            this.defaultOptionRemoved = true
+        }
         if (this.gameSelector.value === 'Smite') {
             this.hideChallenges()
             this.smiteChallengeTitle.classList.remove('display-none')
             this.smiteChallengeField.classList.remove('display-none')
             this.currentGame = 'Smite'
         }
-        else if (this.gameSelector.value ==='Apex') {
+        else if (this.gameSelector.value === 'Apex') {
             this.hideChallenges()
             this.apexChallengeTitle.classList.remove('display-none')
             this.apexChallengeField.classList.remove('display-none')
             this.currentGame = 'Apex'
         }
-
     }
 
     hideChallenges() {
@@ -53,11 +60,11 @@ class Functionality {
     }
 
     challengeValidation(thisVar) {
-        if (thisVar.currentGame !== undefined) {
-            thisVar.gameSelector.classList.remove('validation-failed')
-            if (thisVar.nameInput.value.length >= 3 ) {
-                thisVar.nameInput.classList.remove('validation-failed')
-                let person = thisVar.personInput.value.toLowerCase()
+        if (thisVar.nameInput.value.length >= 3) {
+            thisVar.nameInput.classList.remove('validation-failed')
+            let person = thisVar.personInput.value.toLowerCase()
+            if (thisVar.descriptionInput.value !== '') {
+                thisVar.descriptionInput.classList.remove('validation-failed')
                 if (person === 'dan' || person === 'tom' || person === 'seth' || person === 'jason') {
                     thisVar.personInput.classList.remove('validation-failed')
                     thisVar.submitChallenge(thisVar)
@@ -67,16 +74,16 @@ class Functionality {
                 }
             }
             else {
-                thisVar.nameInput.classList.add('validation-failed')
+                thisVar.descriptionInput.classList.add('validation-failed')
             }
         }
         else {
-            thisVar.gameSelector.classList.add('validation-failed')
+            thisVar.nameInput.classList.add('validation-failed')
         }
     }
 
     submitChallenge(thisVar) {
-        let data = {game: thisVar.currentGame, name: thisVar.nameInput.value, description: thisVar.descriptionInput.value, person: thisVar.personInput.value.toLowerCase()}
+        let data = { game: thisVar.currentGame, name: thisVar.nameInput.value, description: thisVar.descriptionInput.value, person: thisVar.personInput.value.toLowerCase() }
         fetch('createchallenge/', {
             method: 'POST',
             headers: { 'Content-type': 'application.json', },
@@ -85,24 +92,35 @@ class Functionality {
             .then((response) => response.json())
             .then(response => {
                 console.log(response)
+                this.submitUiUpdate(thisVar, data)
             })
             .catch((error) => {
                 console.error(error)
             })
     }
 
+    submitUiUpdate(thisVar, data) {
+        thisVar.nameInput.value = ''
+        thisVar.descriptionInput.value = ''
+        thisVar.personInput.value = ''
+        let divElement = document.createElement('div')
+        if (data['game'] === 'Smite') {
+            thisVar.smiteChallengeField.appendChild(divElement)
+            divElement.innerHTML = `<p class='challenge-name'>${data['name']}</p><p class='challenge-description'>${data['description']}</p>`
+        }
+        if (data['game'] === 'Apex') {
+            thisVar.apexChallengeField.appendChild(divElement)
+            divElement.innerHTML = `<p class='challenge-name'>${data['name']}</p><p class='challenge-description'>${data['description']}</p>`
+        }
+        thisVar.getChallenges()
+    }
+
     randomChallenge() {
         if (this.currentGame === 'Smite') {
-            this.gameSelector.classList.remove('validation-failed')
-            getRandom(this.smiteChallenges)
+            getRandom(this.smiteChallenges, this.challengeName, this.challengeDescription)
         }
         else if (this.currentGame === 'Apex') {
-            this.gameSelector.classList.remove('validation-failed')
-            this.challengeContainer.classList.remove('visibility-hidden')
             getRandom(this.apexChallenges, this.challengeName, this.challengeDescription)
-        }
-        else {
-            this.gameSelector.classList.add('validation-failed')
         }
         function getRandom(game, name, description) {
             let randomChallenge = game['entry' + Math.floor(Math.random() * Object.keys(game).length)]
@@ -113,18 +131,16 @@ class Functionality {
 
     getChallenges() {
         fetch(`getchallenges/`)
-        .then(response => response.json())
-        .then(response => {
-            console.log(response)
-            this.smiteChallenges = response.smite
-            this.apexChallenges = response.apex
-        })
-        .catch((error) => {
-            console.error(error)
-        })
+            .then(response => response.json())
+            .then(response => {
+                console.log(response)
+                this.smiteChallenges = response.smite
+                this.apexChallenges = response.apex
+            })
+            .catch((error) => {
+                console.error(error)
+            })
     }
 }
 
 new Functionality().setup()
-
-// need max length for form validation

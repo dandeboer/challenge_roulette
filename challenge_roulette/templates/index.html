@@ -15,29 +15,30 @@
 <body>
     {% block content %}
     <h1 class='site-title'>Challenge Roulette</h1>
-    <h2 class='site-description'>Select a game, then add a challenge with the input, or get a randomized challenge by clicking the "Challenge Me!" button</h2>
+
 
     <form>
         <label for='game-selector'>Choose a game:</label>
         <select name='game' id='game-selector'>
-            <option value=''>Choose a game</option>
+            <option value='' id='default-option'>Choose a game</option>
             {% for game in games %}
             <option value='{{game.name}}'>{{game.name}}</option>
             {% endfor %}
         </select>
-
-        <p>Create a challenge</p>
-        <input type='text' id='name-input' minlength='3' maxlength='50' placeholder="Challenge name">
-        <input type='text' id='description-input' max_length='200' placeholder="Challenge description (optional)">
-        <input type='text' id='person-input' max_length='20' placeholder="Your name">
-        <button type='submit' id='challenge-submit'>Submit Challenge</button>
+        <div class='visibility-hidden' id='hidden-container'>
+            <p>Create a challenge</p>
+            <input type='text' id='name-input' minlength='3' maxlength='50' placeholder="Challenge name">
+            <input type='text' id='description-input' max_length='200' placeholder="Challenge description">
+            <input type='text' id='person-input' max_length='20' placeholder="Your name">
+            <button type='submit' id='challenge-submit'>Submit Challenge</button>
     </form>
 
     <button type='button' class='challenge-me-button' id='challenge-me-button'>Challenge Me!</button>
 
-    <div class='visibility-hidden challenge-field' id='challenge-container'>
+    <div class='challenge-field' id='challenge-container'>
         <p class='challenge-name' id='challenge-name'></p>
         <p class='challenge-description' id='challenge-description'></p>
+    </div>
     </div>
 
     {% for game in games %}
@@ -46,10 +47,8 @@
         {% for challenge in challenges %}
         {% if challenge.game.name == game.name %}
         <div>
-            <p>{{challenge.name}}</p>
-            {% if challenge.description != "" %}
-            <p>{{challenge.description}}</p>
-            {% endif %}
+            <p class='challenge-name'>{{challenge.name}}</p>
+            <p class='challenge-description'>{{challenge.description}}</p>
         </div>
         {% endif %}
         {% endfor %}

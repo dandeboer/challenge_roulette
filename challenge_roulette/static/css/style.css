@@ -25,9 +25,9 @@
     border-bottom: 2px solid;
 }
 
-/* .challenge-description {
-    border: solid 2px;
-} */
+.challenge-description {
+    background-color: #D0D0D0;
+}
 
 .challenge-field {
     border: solid 2px;
